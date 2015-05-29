@@ -8,8 +8,8 @@ from HTMLParser import HTMLParser
 
 factory = ChatterBotFactory()
 
-bot1 = factory.create(ChatterBotType.CLEVERBOT)
-bot1session = bot1.create_session()
+bot = factory.create(ChatterBotType.CLEVERBOT)
+bot_sessions = dict()
 
 class EchoLayer(YowInterfaceLayer):
     @ProtocolEntityCallback("message")
@@ -20,8 +20,11 @@ class EchoLayer(YowInterfaceLayer):
 
             message_txt = messageProtocolEntity.getBody()
             to = messageProtocolEntity.getFrom()
-            #~ bot_answer = bot1session.think(message_txt)
-            bot_answer = "blabla"
+            
+            if to not in bot_sessions.keys():
+                print "adding {} to participants".format(to)
+                bot_sessions[to] = bot.create_session()
+            bot_answer = bot_sessions[to].think(message_txt)
             text = "Bot answers: {}".format(HTMLParser().unescape(bot_answer).encode("utf-8"))
             print "Got <{}> from {}".format(message_txt, to)
             print "Answering with <{}>".format(text)
